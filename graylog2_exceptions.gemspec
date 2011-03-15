@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{graylog2_exceptions}
-  s.version = "1.2.0"
+  s.version = "1.3.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Lennart Koopmann"]
-  s.date = %q{2011-02-23}
+  s.date = %q{2011-03-15}
   s.description = %q{A Rack middleware that sends every Exception as GELF message to your Graylog2 server}
   s.email = %q{lennart@socketfeed.com}
   s.extra_rdoc_files = [
