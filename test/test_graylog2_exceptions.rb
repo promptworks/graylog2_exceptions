@@ -1,31 +1,31 @@
 require 'helper'
 require 'logger'
 
-class TestGraylog2Exceptions < Test::Unit::TestCase
+class TestGraylog2Exceptions < Minitest::Test
 
   # Exceptions raised in the app should be thrown back
   # to the app after handling. Simulating this by giving
   # a nil app and expecting the caused exceptions.
   def test_should_rethrow_exception
     c = Graylog2Exceptions.new(nil, {})
-    assert_raise NoMethodError do
+    assert_raises NoMethodError do
       c.call nil
     end
   end
 
   def test_correct_parameters_when_custom_set
     c = Graylog2Exceptions.new(nil, {:host => "localhost", :port => 1337, :max_chunk_size => 'WAN', :local_app_name => "yomama", :level => 1})
-    
+
     assert_equal "yomama", c.args[:local_app_name]
     assert_equal "localhost", c.args[:hostname]
     assert_equal 1337, c.args[:port]
     assert_equal 'WAN', c.args[:max_chunk_size]
     assert_equal 1, c.args[:level]
   end
-  
+
   def test_add_custom_attributes_to_parameters
     c = Graylog2Exceptions.new(nil, {:_app => "my_awesome_app", :_rails_env => "staging"})
-    
+
 		assert_equal "my_awesome_app", c.args[:_app]
 		assert_equal "staging", c.args[:_rails_env]
   end
@@ -41,7 +41,7 @@ class TestGraylog2Exceptions < Test::Unit::TestCase
 
   def test_correct_parameters_when_not_custom_set
     c = Graylog2Exceptions.new(nil, {})
-    
+
     assert_equal Socket.gethostname, c.args[:local_app_name]
     assert_equal "localhost", c.args[:hostname]
     assert_equal 12201, c.args[:port]
@@ -63,7 +63,7 @@ class TestGraylog2Exceptions < Test::Unit::TestCase
     assert_equal ex.backtrace[0].split(":")[1], json["line"]
     assert_equal ex.backtrace[0].split(":")[0], json["file"]
   end
-  
+
   def test_send_exception_to_graylog2_with_custom_parameters
     ex = build_exception
 
@@ -134,7 +134,7 @@ class TestGraylog2Exceptions < Test::Unit::TestCase
         "obj" => Object.new,
         "bad" => bad
     }
-    
+
     sent = Zlib::Inflate.inflate(c.send_to_graylog2(ex, data).join)
     json = JSON.parse(sent)
     assert_equal('nil', json["_env_nil"])

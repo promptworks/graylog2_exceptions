@@ -17,7 +17,13 @@ class Graylog2Exceptions
       :short_message => nil,
       :full_message => nil,
       :file => nil,
-      :line => nil
+      :line => nil,
+      :notify => ->(details) {
+        notifier = GELF::Notifier.new(@args[:hostname], @args[:port], @args[:max_chunk_size])
+        notifier.collect_file_and_line = false
+        notifier.notify!(details)
+      }
+
     }
 
     @args = standard_args.merge(args).reject {|k, v| v.nil? }
@@ -51,9 +57,6 @@ class Graylog2Exceptions
 
   def send_to_graylog2(err, env=nil)
     begin
-      notifier = GELF::Notifier.new(@args[:hostname], @args[:port], @args[:max_chunk_size])
-      notifier.collect_file_and_line = false
-      
       opts = {
           :short_message => err.message,
           :facility => @args[:facility],
@@ -75,8 +78,8 @@ class Graylog2Exceptions
           end
         end
       end
-      
-      notifier.notify!(opts.merge(@extra_args))
+
+      args[:notify].call(opts.merge(@extra_args))
     rescue Exception => i_err
       puts "Graylog2 Exception logger. Could not send message: " + i_err.message
     end
