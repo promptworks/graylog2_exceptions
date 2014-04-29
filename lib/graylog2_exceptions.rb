@@ -18,11 +18,11 @@ class Graylog2Exceptions
       :full_message => nil,
       :file => nil,
       :line => nil,
-      :notify => ->(details) {
+      :notify => lambda do |details|
         notifier = GELF::Notifier.new(@args[:hostname], @args[:port], @args[:max_chunk_size])
         notifier.collect_file_and_line = false
         notifier.notify!(details)
-      }
+      end
 
     }
 
